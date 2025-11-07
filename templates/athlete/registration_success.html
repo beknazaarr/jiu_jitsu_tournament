@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация успешна{% endblock %}
+
+{% block content %}
+<h1>Регистрация успешна!</h1>
+<p>Поздравляем, {{ athlete.first_name }}! Вы успешно зарегистрированы на турнир.</p>
+<a href="{% url 'tournament_list' %}" class="btn btn-primary">Вернуться к списку турниров</a>
+{% endblock %}

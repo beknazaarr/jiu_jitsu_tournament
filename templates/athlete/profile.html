@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Профиль спортсмена{% endblock %}
+
+{% block content %}
+<h1>Профиль спортсмена</h1>
+<ul class="list-group">
+    <li class="list-group-item"><strong>Имя:</strong> {{ athlete.first_name }} {{ athlete.last_name }}</li>
+    <li class="list-group-item"><strong>Команда:</strong> {{ athlete.team }}</li>
+    <li class="list-group-item"><strong>Возраст:</strong> {{ athlete.age }}</li>
+    <li class="list-group-item"><strong>Весовая категория:</strong> {{ athlete.weight_class }}</li>
+</ul>
+{% endblock %}

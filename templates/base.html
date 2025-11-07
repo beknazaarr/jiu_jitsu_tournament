@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Турнирная система{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+    <!-- Навигация -->
+    <nav class="bg-gray-800 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{% url 'tournament:list' %}" class="text-xl font-semibold text-blue-400 hover:text-blue-300">
+                🥋 Джиу-Джитсу Турниры
+            </a>
+            <div class="space-x-6 text-sm">
+                <a href="{% url 'tournament:list' %}" class="hover:text-blue-300 transition">Турниры</a>
+                <span class="text-gray-500">Регистрация (только админ)</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Контент -->
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Подвал -->
+    <footer class="bg-gray-800 text-center py-4 text-gray-400 text-sm mt-auto border-t border-gray-700">
+        © 2025 Турнирная система джиу-джитсу. Все права защищены.
+    </footer>
+
+</body>
+</html>

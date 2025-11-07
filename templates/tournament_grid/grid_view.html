@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Турнирная сетка{% endblock %}
+
+{% block content %}
+<h1>Турнирная сетка: {{ tournament.name }}</h1>
+{% if grid %}
+    <pre>{{ grid }}</pre>
+{% else %}
+    <p>Сетка ещё не сформирована.</p>
+{% endif %}
+{% endblock %}

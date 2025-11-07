@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}{{ tournament.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ tournament.name }}</h1>
+<p><strong>Дата:</strong> {{ tournament.date|date:"d.m.Y" }}</p>
+<p><strong>Место:</strong> {{ tournament.location }}</p>
+<p><strong>Описание:</strong> {{ tournament.description }}</p>
+
+<a href="{% url 'tournament:categories' tournament.id %}" class="btn btn-primary">Посмотреть категории</a>
+<a href="{% url 'tournament:schedule' tournament.id %}" class="btn btn-secondary">Расписание</a>
+{% endblock %}

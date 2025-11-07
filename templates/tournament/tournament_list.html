@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Список турниров{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-6 text-blue-400">Список турниров</h2>
+
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for tournament in tournaments %}
+    <div class="bg-gray-800 rounded-lg shadow-lg p-5 hover:shadow-blue-400/40 transition">
+        <h3 class="text-xl font-semibold text-blue-300 mb-2">{{ tournament.name }}</h3>
+        <p class="text-gray-400 mb-1">Дата: {{ tournament.date }}</p>
+        <p class="text-gray-400 mb-3">Место: {{ tournament.location }}</p>
+        <a href="{% url 'tournament:detail' tournament.pk %}" class="text-blue-400 hover:text-blue-200">
+            Подробнее →
+        </a>
+    </div>
+    {% empty %}
+    <p>Пока нет турниров.</p>
+    {% endfor %}
+</div>
+{% endblock %}

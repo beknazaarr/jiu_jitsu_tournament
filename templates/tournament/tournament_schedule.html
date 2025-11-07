@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Расписание турнира{% endblock %}
+
+{% block content %}
+<h1>Расписание: {{ tournament.name }}</h1>
+{% if schedule %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Время</th>
+            <th>Категория</th>
+            <th>Матч</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in schedule %}
+        <tr>
+            <td>{{ event.time }}</td>
+            <td>{{ event.category.name }}</td>
+            <td>{{ event.match_description }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Расписание пока не опубликовано.</p>
+{% endif %}
+{% endblock %}
