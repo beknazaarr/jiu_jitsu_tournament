@@ -2,93 +2,263 @@
 {% block title %}{{ tournament.name }}{% endblock %}
 
 {% block content %}
-<!-- Заголовок -->
-<div class="mb-8">
-    <h1 class="text-4xl font-bold mb-2 text-blue-400">{{ tournament.name }}</h1>
-    {% if tournament.registration_open %}
-    <span class="inline-block bg-green-500 text-white text-sm px-3 py-1 rounded-full">
-        ✅ Регистрация открыта
-    </span>
-    {% else %}
-    <span class="inline-block bg-gray-600 text-gray-300 text-sm px-3 py-1 rounded-full">
-        ❌ Регистрация закрыта
-    </span>
-    {% endif %}
-</div>
-
-<!-- Основная информация -->
-<div class="grid md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <h2 class="text-xl font-semibold mb-4 text-blue-300">📋 Основная информация</h2>
-        <div class="space-y-3 text-gray-300">
-            <p><strong class="text-gray-400">Дата:</strong> {{ tournament.date|date:"d E Y" }}</p>
-            <p><strong class="text-gray-400">Место:</strong> {{ tournament.location }}</p>
-            <p><strong class="text-gray-400">Участников:</strong> {{ total_athletes }}</p>
-            <p><strong class="text-gray-400">Категорий:</strong> {{ categories.count }}</p>
-        </div>
-    </div>
-    
-    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <h2 class="text-xl font-semibold mb-4 text-blue-300">📝 Описание</h2>
-        {% if tournament.description %}
-        <p class="text-gray-300">{{ tournament.description }}</p>
-        {% else %}
-        <p class="text-gray-500 italic">Описание отсутствует</p>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Правила -->
-{% if tournament.rules %}
-<div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
-    <h2 class="text-xl font-semibold mb-4 text-blue-300">⚖️ Правила турнира</h2>
-    <div class="text-gray-300 whitespace-pre-line">{{ tournament.rules }}</div>
-</div>
-{% endif %}
-
-<!-- Категории -->
-<div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
-    <h2 class="text-xl font-semibold mb-4 text-blue-300">🎯 Категории турнира</h2>
-    
-    {% if categories %}
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {% for category in categories %}
-        <div class="bg-gray-700 rounded p-4 border border-gray-600">
-            <h3 class="font-semibold text-blue-200 mb-2">{{ category.name }}</h3>
-            <div class="text-sm text-gray-300 space-y-1">
-                <p>Пол: {{ category.get_gender_display }}</p>
-                <p>Возраст: {{ category.age_min }}-{{ category.age_max }} лет</p>
-                <p>Вес: {{ category.weight_min }}-{{ category.weight_max }} кг</p>
-                <p>Уровень: {{ category.get_level_display }}</p>
-                <p class="text-green-400 font-semibold mt-2">
-                    Участников: {{ category.athletes.count }}
-                </p>
+<!-- Баннер турнира -->
+<div class="bg-gradient-to-r from-blue-900 to-blue-700">
+    <div class="container mx-auto px-4 py-12">
+        <div class="flex items-center gap-4 mb-4">
+            <!-- Логотип турнира -->
+            <div class="w-20 h-20 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+                <span class="text-4xl">🥋</span>
             </div>
-            <a href="{% url 'athlete:category_list' category.id %}" 
-               class="block mt-3 text-center bg-blue-600 hover:bg-blue-500 text-white py-1 px-3 rounded text-sm transition">
-                Список участников
-            </a>
+            
+            <div class="flex-1">
+                <h1 class="text-4xl font-bold text-white mb-2">{{ tournament.name }}</h1>
+                <p class="text-blue-200 text-lg">{{ tournament.date|date:"d B Y" }}</p>
+            </div>
         </div>
-        {% endfor %}
+
+        <!-- Мета-информация -->
+        <div class="flex flex-wrap gap-6 text-sm text-blue-100">
+            <div class="flex items-center gap-2">
+                <span>📍</span>
+                <span>{{ tournament.location }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span>👥</span>
+                <span>{{ total_athletes }} участников</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span>🎯</span>
+                <span>{{ categories.count }} категорий</span>
+            </div>
+        </div>
     </div>
-    {% else %}
-    <p class="text-gray-500">Категории ещё не добавлены</p>
-    {% endif %}
 </div>
 
-<!-- Действия -->
-<div class="flex gap-4">
-    <a href="{% url 'tournament:categories' tournament.id %}" 
-       class="bg-blue-600 hover:bg-blue-500 text-white py-3 px-6 rounded-lg transition font-semibold">
-        📊 Все категории и участники
-    </a>
-    <a href="{% url 'tournament:schedule' tournament.id %}" 
-       class="bg-purple-600 hover:bg-purple-500 text-white py-3 px-6 rounded-lg transition font-semibold">
-        🕐 Расписание боёв
-    </a>
-    <a href="{% url 'tournament:list' %}" 
-       class="bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg transition">
-        ← Назад к списку
-    </a>
+<!-- Навигация по вкладкам -->
+<div class="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
+    <div class="container mx-auto px-4">
+        <nav class="flex gap-8 overflow-x-auto">
+            <button onclick="showTab('info')" 
+                    id="tab-info"
+                    class="tab-button py-4 px-2 text-sm font-medium whitespace-nowrap transition tab-active">
+                📋 Информация
+            </button>
+            <button onclick="showTab('participants')" 
+                    id="tab-participants"
+                    class="tab-button py-4 px-2 text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap transition">
+                👥 Участники
+            </button>
+            <button onclick="showTab('brackets')" 
+                    id="tab-brackets"
+                    class="tab-button py-4 px-2 text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap transition">
+                🏆 Сетки
+            </button>
+            <button onclick="showTab('schedule')" 
+                    id="tab-schedule"
+                    class="tab-button py-4 px-2 text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap transition">
+                🕐 Расписание
+            </button>
+            <button onclick="showTab('results')" 
+                    id="tab-results"
+                    class="tab-button py-4 px-2 text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap transition">
+                🏅 Результаты
+            </button>
+        </nav>
+    </div>
 </div>
+
+<!-- Контент вкладок -->
+<div class="container mx-auto px-4 py-8">
+    
+    <!-- Вкладка: Информация -->
+    <div id="content-info" class="tab-content">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Описание -->
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <h2 class="text-2xl font-semibold mb-4 text-white">О турнире</h2>
+                    {% if tournament.description %}
+                    <p class="text-gray-300 leading-relaxed">{{ tournament.description }}</p>
+                    {% else %}
+                    <p class="text-gray-500 italic">Описание отсутствует</p>
+                    {% endif %}
+                </div>
+
+                <!-- Правила -->
+                {% if tournament.rules %}
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <h2 class="text-2xl font-semibold mb-4 text-white">Правила турнира</h2>
+                    <div class="text-gray-300 leading-relaxed whitespace-pre-line">{{ tournament.rules }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Боковая панель -->
+            <div class="space-y-6">
+                <!-- Дата и место -->
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <h3 class="text-lg font-semibold mb-4 text-white">📅 Дата и место</h3>
+                    <div class="space-y-3 text-sm">
+                        <div>
+                            <p class="text-gray-400 mb-1">Начало турнира</p>
+                            <p class="text-white font-medium">{{ tournament.date|date:"d B Y" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 mb-1">Место проведения</p>
+                            <p class="text-white font-medium">{{ tournament.location }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Регистрация -->
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <h3 class="text-lg font-semibold mb-4 text-white">📝 Регистрация</h3>
+                    {% if tournament.registration_open %}
+                    <div class="bg-green-900/30 border border-green-700 rounded p-4 mb-4">
+                        <p class="text-green-400 font-medium mb-2">✅ Регистрация открыта</p>
+                        <p class="text-green-300 text-sm">Вы можете зарегистрироваться на турнир</p>
+                    </div>
+                    {% else %}
+                    <div class="bg-gray-800 border border-gray-700 rounded p-4 mb-4">
+                        <p class="text-gray-400 font-medium mb-2">❌ Регистрация закрыта</p>
+                        <p class="text-gray-500 text-sm">Регистрация на данный момент недоступна</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Статистика -->
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <h3 class="text-lg font-semibold mb-4 text-white">📊 Статистика</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Участников</span>
+                            <span class="text-white font-semibold text-lg">{{ total_athletes }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Категорий</span>
+                            <span class="text-white font-semibold text-lg">{{ categories.count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка: Участники -->
+    <div id="content-participants" class="tab-content hidden">
+        <div class="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+            <div class="p-6 border-b border-gray-800">
+                <h2 class="text-2xl font-semibold text-white">Участники по категориям</h2>
+                <p class="text-gray-400 mt-1">Всего зарегистрировано: {{ total_athletes }} спортсменов</p>
+            </div>
+            
+            <div class="divide-y divide-gray-800">
+                {% for category in categories %}
+                <div class="p-6 hover:bg-gray-800/50 transition">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">{{ category.name }}</h3>
+                            <div class="flex gap-4 text-sm text-gray-400">
+                                <span>{{ category.get_gender_display }}</span>
+                                <span>{{ category.age_min }}-{{ category.age_max }} лет</span>
+                                <span>{{ category.weight_min }}-{{ category.weight_max }} кг</span>
+                            </div>
+                        </div>
+                        <span class="bg-blue-900/30 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
+                            {{ category.athletes.count }} чел.
+                        </span>
+                    </div>
+                    <a href="{% url 'athlete:category_list' category.id %}" 
+                       class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                        Посмотреть список →
+                    </a>
+                </div>
+                {% empty %}
+                <div class="p-12 text-center">
+                    <p class="text-gray-500">Категории ещё не добавлены</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка: Сетки -->
+    <div id="content-brackets" class="tab-content hidden">
+        <div class="bg-gray-900 rounded-lg border border-gray-800 p-6">
+            <h2 class="text-2xl font-semibold text-white mb-6">Турнирные сетки</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for category in categories %}
+                <a href="{% url 'grid:view' category.id %}" 
+                   class="bg-gray-800 hover:bg-gray-750 border border-gray-700 rounded-lg p-6 transition group">
+                    <h3 class="text-lg font-semibold text-white mb-2 group-hover:text-blue-400">
+                        {{ category.name }}
+                    </h3>
+                    <p class="text-gray-400 text-sm mb-3">
+                        {{ category.athletes.count }} участников
+                    </p>
+                    {% if category.grid %}
+                    <span class="text-green-400 text-sm">✓ Сетка создана</span>
+                    {% else %}
+                    <span class="text-gray-500 text-sm">Сетка не создана</span>
+                    {% endif %}
+                </a>
+                {% empty %}
+                <div class="col-span-full text-center py-12">
+                    <p class="text-gray-500">Категории отсутствуют</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка: Расписание -->
+    <div id="content-schedule" class="tab-content hidden">
+        <div class="bg-gray-900 rounded-lg border border-gray-800 p-6">
+            <h2 class="text-2xl font-semibold text-white mb-6">Расписание боёв</h2>
+            <div class="text-center py-12">
+                <p class="text-gray-400 mb-4">Расписание будет доступно ближе к дате турнира</p>
+                <a href="{% url 'tournament:schedule' tournament.id %}" 
+                   class="inline-block bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg transition">
+                    Перейти к расписанию
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка: Результаты -->
+    <div id="content-results" class="tab-content hidden">
+        <div class="bg-gray-900 rounded-lg border border-gray-800 p-6">
+            <h2 class="text-2xl font-semibold text-white mb-6">Результаты турнира</h2>
+            <div class="text-center py-12">
+                <p class="text-gray-400">Результаты будут доступны после завершения турнира</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showTab(tabName) {
+    // Скрываем все вкладки
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Убираем активный класс со всех кнопок
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('tab-active');
+        button.classList.add('text-gray-400');
+    });
+    
+    // Показываем нужную вкладку
+    document.getElementById('content-' + tabName).classList.remove('hidden');
+    
+    // Активируем кнопку
+    const activeButton = document.getElementById('tab-' + tabName);
+    activeButton.classList.add('tab-active');
+    activeButton.classList.remove('text-gray-400');
+}
+</script>
 {% endblock %}

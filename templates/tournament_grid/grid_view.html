@@ -2,147 +2,223 @@
 {% block title %}Турнирная сетка{% endblock %}
 
 {% block content %}
+<!-- Хлебные крошки -->
+<div class="bg-gray-900 border-b border-gray-800">
+    <div class="container mx-auto px-4 py-4">
+        <nav class="flex items-center gap-2 text-sm">
+            <a href="{% url 'tournament:list' %}" class="text-gray-400 hover:text-white">Турниры</a>
+            <span class="text-gray-600">/</span>
+            <a href="{% url 'tournament:detail' tournament.id %}" class="text-gray-400 hover:text-white">
+                {{ tournament.name }}
+            </a>
+            <span class="text-gray-600">/</span>
+            <span class="text-white">Сетка: {{ category.name }}</span>
+        </nav>
+    </div>
+</div>
+
 <!-- Заголовок -->
-<div class="mb-8">
-    <h1 class="text-3xl font-bold mb-2 text-blue-400">
-        🏆 Турнирная сетка: {{ category.name }}
-    </h1>
-    <p class="text-gray-400">{{ tournament.name }} • {{ tournament.date|date:"d.m.Y" }}</p>
+<div class="bg-gradient-to-r from-purple-900 to-purple-700">
+    <div class="container mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-white mb-4">🏆 Турнирная сетка</h1>
+        <p class="text-purple-200 text-lg">{{ category.name }}</p>
+    </div>
 </div>
 
-{% if error %}
-<!-- Ошибка -->
-<div class="bg-red-900/30 border border-red-500 rounded-lg p-6 text-center">
-    <p class="text-red-400 text-lg">{{ error }}</p>
-    {% if user.is_staff %}
-    <a href="{% url 'grid:generate' category.id %}" 
-       class="inline-block mt-4 bg-blue-600 hover:bg-blue-500 text-white py-2 px-6 rounded transition">
-        Сгенерировать сетку
-    </a>
-    {% endif %}
-</div>
-
-{% elif grid %}
-<!-- Информация о сетке -->
-<div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
-    <div class="flex justify-between items-center">
-        <div>
-            <p class="text-gray-400 mb-1">Тип сетки</p>
-            <p class="text-white font-semibold text-lg">{{ grid.get_grid_type_display }}</p>
-        </div>
-        <div>
-            <p class="text-gray-400 mb-1">Всего матчей</p>
-            <p class="text-white font-semibold text-lg">{{ grid.matches.count }}</p>
-        </div>
+<!-- Контент -->
+<div class="container mx-auto px-4 py-8">
+    
+    {% if error %}
+    <!-- Ошибка -->
+    <div class="bg-gray-900 border border-red-800 rounded-lg p-12 text-center">
+        <div class="text-5xl mb-4">⚠️</div>
+        <h3 class="text-2xl font-bold text-white mb-2">Сетка не создана</h3>
+        <p class="text-gray-400 mb-6">{{ error }}</p>
         {% if user.is_staff %}
         <a href="{% url 'grid:generate' category.id %}" 
-           class="bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded transition text-sm">
-            Пересоздать сетку
+           class="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-lg transition font-medium">
+            Сгенерировать сетку
         </a>
         {% endif %}
     </div>
-</div>
 
-<!-- Турнирная сетка -->
-{% if bracket_structure %}
-<div class="overflow-x-auto">
-    <div class="flex gap-6 pb-4">
-        {% for round in bracket_structure %}
-        <div class="flex-shrink-0" style="min-width: 300px;">
-            <h3 class="text-xl font-semibold text-blue-300 mb-4 text-center">
-                {{ round.display_name }}
-            </h3>
+    {% elif grid %}
+    
+    <!-- Информация о сетке -->
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-8">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex gap-8">
+                <div>
+                    <p class="text-gray-400 text-sm mb-1">Тип сетки</p>
+                    <p class="text-white font-semibold">{{ grid.get_grid_type_display }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-1">Всего матчей</p>
+                    <p class="text-white font-semibold">{{ grid.matches.count }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-1">Участников</p>
+                    <p class="text-white font-semibold">{{ category.athletes.count }}</p>
+                </div>
+            </div>
             
-            <div class="space-y-4">
-                {% for match in round.matches %}
-                <div class="bg-gray-800 rounded-lg p-4 border {% if match.is_completed %}border-green-600{% else %}border-gray-700{% endif %}">
-                    <div class="text-xs text-gray-400 mb-2">
-                        Бой #{{ match.match_number }}
-                    </div>
-                    
-                    <!-- Спортсмен 1 -->
-                    <div class="mb-2 p-2 rounded {% if match.winner == match.athlete1 %}bg-green-900/30{% else %}bg-gray-700{% endif %}">
-                        {% if match.athlete1 %}
-                        <p class="font-semibold text-white text-sm">
-                            {{ match.athlete1.full_name }}
-                        </p>
-                        <p class="text-xs text-gray-400">{{ match.athlete1.school }}</p>
-                        {% else %}
-                        <p class="text-gray-500 text-sm italic">Определяется</p>
-                        {% endif %}
-                        {% if match.is_completed %}
-                        <p class="text-right text-lg font-bold {% if match.winner == match.athlete1 %}text-green-400{% else %}text-gray-400{% endif %}">
-                            {{ match.score_athlete1 }}
-                        </p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="text-center text-gray-600 text-xs my-1">vs</div>
-                    
-                    <!-- Спортсмен 2 -->
-                    <div class="p-2 rounded {% if match.winner == match.athlete2 %}bg-green-900/30{% else %}bg-gray-700{% endif %}">
-                        {% if match.athlete2 %}
-                        <p class="font-semibold text-white text-sm">
-                            {{ match.athlete2.full_name }}
-                        </p>
-                        <p class="text-xs text-gray-400">{{ match.athlete2.school }}</p>
-                        {% else %}
-                        <p class="text-gray-500 text-sm italic">Определяется</p>
-                        {% endif %}
-                        {% if match.is_completed %}
-                        <p class="text-right text-lg font-bold {% if match.winner == match.athlete2 %}text-green-400{% else %}text-gray-400{% endif %}">
-                            {{ match.score_athlete2 }}
-                        </p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Статус -->
-                    <div class="mt-3 pt-3 border-t border-gray-700">
-                        {% if match.is_completed %}
-                        <div class="text-xs text-green-400 text-center">
-                            ✓ Завершён
-                            {% if match.result_type %}
-                            <span class="text-gray-400">• {{ match.get_result_type_display }}</span>
+            {% if user.is_staff %}
+            <div class="flex gap-3">
+                <a href="{% url 'grid:generate' category.id %}" 
+                   class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm transition">
+                    Пересоздать сетку
+                </a>
+                <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm transition">
+                    Экспорт PDF
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Турнирная сетка -->
+    {% if bracket_structure %}
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-6 overflow-x-auto">
+        <div class="flex gap-8 min-w-max pb-4">
+            {% for round in bracket_structure %}
+            <div class="flex flex-col justify-around" style="min-width: 320px;">
+                
+                <!-- Заголовок раунда -->
+                <div class="mb-6 text-center">
+                    <h3 class="text-xl font-bold text-white px-4 py-2 bg-gray-800 rounded-lg inline-block">
+                        {{ round.display_name }}
+                    </h3>
+                </div>
+                
+                <!-- Матчи -->
+                <div class="space-y-8">
+                    {% for match in round.matches %}
+                    <div class="bg-gray-800 border {% if match.is_completed %}border-green-600{% else %}border-gray-700{% endif %} rounded-lg overflow-hidden">
+                        
+                        <!-- Номер боя -->
+                        <div class="bg-gray-700 px-4 py-2 text-center">
+                            <span class="text-gray-400 text-xs font-medium">
+                                БОЙ #{{ match.match_number }}
+                            </span>
+                        </div>
+
+                        <!-- Спортсмен 1 -->
+                        <div class="p-4 {% if match.winner == match.athlete1 %}bg-green-900/20{% endif %} border-b border-gray-700">
+                            {% if match.athlete1 %}
+                            <div class="flex justify-between items-center">
+                                <div class="flex-1">
+                                    <p class="text-white font-semibold text-sm mb-1">
+                                        {{ match.athlete1.full_name }}
+                                    </p>
+                                    <p class="text-gray-500 text-xs">{{ match.athlete1.school }}</p>
+                                </div>
+                                {% if match.is_completed %}
+                                <div class="ml-4">
+                                    <span class="text-2xl font-bold {% if match.winner == match.athlete1 %}text-green-400{% else %}text-gray-600{% endif %}">
+                                        {{ match.score_athlete1 }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <p class="text-gray-600 text-sm italic">Определяется...</p>
                             {% endif %}
                         </div>
-                        {% else %}
-                        <div class="text-xs text-blue-400 text-center">
-                            ⏳ Ожидается
+
+                        <!-- Спортсмен 2 -->
+                        <div class="p-4 {% if match.winner == match.athlete2 %}bg-green-900/20{% endif %}">
+                            {% if match.athlete2 %}
+                            <div class="flex justify-between items-center">
+                                <div class="flex-1">
+                                    <p class="text-white font-semibold text-sm mb-1">
+                                        {{ match.athlete2.full_name }}
+                                    </p>
+                                    <p class="text-gray-500 text-xs">{{ match.athlete2.school }}</p>
+                                </div>
+                                {% if match.is_completed %}
+                                <div class="ml-4">
+                                    <span class="text-2xl font-bold {% if match.winner == match.athlete2 %}text-green-400{% else %}text-gray-600{% endif %}">
+                                        {{ match.score_athlete2 }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <p class="text-gray-600 text-sm italic">Определяется...</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Статус -->
+                        <div class="bg-gray-700 px-4 py-2 text-center">
+                            {% if match.is_completed %}
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-green-400 text-xs">✓ Завершён</span>
+                                {% if match.result_type %}
+                                <span class="text-gray-500 text-xs">• {{ match.get_result_type_display }}</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <span class="text-blue-400 text-xs">⏳ Ожидается</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Кнопка для администратора -->
+                        {% if user.is_staff and not match.is_completed and match.athlete1 and match.athlete2 %}
+                        <div class="p-3 bg-gray-750">
+                            <a href="{% url 'grid:update_result' match.id %}" 
+                               class="block text-center bg-blue-600 hover:bg-blue-500 text-white py-2 rounded text-xs font-medium transition">
+                                Внести результат
+                            </a>
                         </div>
                         {% endif %}
                     </div>
-                    
-                    {% if user.is_staff and not match.is_completed and match.athlete1 and match.athlete2 %}
-                    <a href="{% url 'grid:update_result' match.id %}" 
-                       class="block mt-2 text-center bg-blue-600 hover:bg-blue-500 text-white py-1 px-3 rounded text-xs transition">
-                        Внести результат
-                    </a>
-                    {% endif %}
+                    {% endfor %}
                 </div>
-                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Легенда -->
+    <div class="mt-8 bg-gray-900 border border-gray-800 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Обозначения</h3>
+        <div class="flex flex-wrap gap-6 text-sm">
+            <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-green-900/20 border border-green-600 rounded"></div>
+                <span class="text-gray-400">Победитель</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-blue-400">⏳</span>
+                <span class="text-gray-400">Ожидается</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-green-400">✓</span>
+                <span class="text-gray-400">Завершён</span>
             </div>
         </div>
-        {% endfor %}
     </div>
-</div>
-{% else %}
-<div class="bg-gray-800 rounded-lg p-12 text-center border border-gray-700">
-    <p class="text-gray-500">Матчи не найдены</p>
-</div>
-{% endif %}
 
-{% else %}
-<!-- Сетка не создана -->
-<div class="bg-gray-800 rounded-lg p-12 text-center border border-gray-700">
-    <p class="text-gray-500 text-lg">Турнирная сетка ещё не создана</p>
-</div>
-{% endif %}
+    {% else %}
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-16 text-center">
+        <p class="text-gray-500 text-lg">Матчи не найдены</p>
+    </div>
+    {% endif %}
 
-<!-- Кнопка назад -->
-<div class="mt-6">
-    <a href="{% url 'tournament:categories' tournament.id %}" 
-       class="inline-block bg-gray-700 hover:bg-gray-600 text-white py-2 px-6 rounded transition">
-        ← Назад к категориям
-    </a>
+    {% else %}
+    <!-- Сетка не создана -->
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-16 text-center">
+        <div class="text-6xl mb-4 opacity-50">🏆</div>
+        <h3 class="text-2xl font-bold text-white mb-2">Сетка ещё не создана</h3>
+        <p class="text-gray-400">Сетка будет доступна после формирования</p>
+    </div>
+    {% endif %}
+
+    <!-- Кнопка назад -->
+    <div class="mt-8">
+        <a href="{% url 'tournament:categories' tournament.id %}" 
+           class="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition">
+            ← Назад к категориям
+        </a>
+    </div>
 </div>
 {% endblock %}

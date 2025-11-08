@@ -5,30 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Турнирная система{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-active {
+            border-bottom: 3px solid #3B82F6;
+            color: #3B82F6;
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+<body class="bg-black text-white min-h-screen">
 
-    <!-- Навигация -->
-    <nav class="bg-gray-800 shadow-lg">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="{% url 'tournament:list' %}" class="text-xl font-semibold text-blue-400 hover:text-blue-300">
-                🥋 Джиу-Джитсу Турниры
-            </a>
-            <div class="space-x-6 text-sm">
-                <a href="{% url 'tournament:list' %}" class="hover:text-blue-300 transition">Турниры</a>
-                <span class="text-gray-500">Регистрация (только админ)</span>
+    <!-- Верхний хедер -->
+    <header class="bg-gray-900 border-b border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Логотип -->
+                <a href="{% url 'tournament:list' %}" class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-blue-600 rounded flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">JJ</span>
+                    </div>
+                    <span class="text-white font-semibold text-lg hidden md:block">
+                        JIU-JITSU TOURNAMENTS
+                    </span>
+                </a>
+
+                <!-- Навигация -->
+                <nav class="flex items-center gap-8">
+                    <a href="{% url 'tournament:list' %}" 
+                       class="text-gray-300 hover:text-white transition text-sm font-medium">
+                        Турниры
+                    </a>
+                    {% if user.is_staff %}
+                    <a href="/admin/" 
+                       class="text-gray-300 hover:text-white transition text-sm font-medium">
+                        Админ-панель
+                    </a>
+                    {% endif %}
+                </nav>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Контент -->
-    <main class="container mx-auto px-4 py-8 flex-grow">
+    <main>
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Подвал -->
-    <footer class="bg-gray-800 text-center py-4 text-gray-400 text-sm mt-auto border-t border-gray-700">
-        © 2025 Турнирная система джиу-джитсу. Все права защищены.
+    <!-- Футер -->
+    <footer class="bg-gray-900 border-t border-gray-800 mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid md:grid-cols-3 gap-8 text-sm">
+                <div>
+                    <h3 class="text-white font-semibold mb-3">О системе</h3>
+                    <p class="text-gray-400">
+                        Профессиональная система управления турнирами по джиу-джитсу
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-3">Контакты</h3>
+                    <p class="text-gray-400">Email: info@jiujitsu-tournaments.com</p>
+                    <p class="text-gray-400">Тел: +996 XXX XXX XXX</p>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-3">Ссылки</h3>
+                    <a href="{% url 'tournament:list' %}" class="block text-gray-400 hover:text-white mb-1">
+                        Все турниры
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-xs">
+                © 2025 Jiu-Jitsu Tournaments. Все права защищены.
+            </div>
+        </div>
     </footer>
 
 </body>
