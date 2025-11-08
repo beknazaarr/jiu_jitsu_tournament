@@ -1,21 +1,94 @@
 {% extends 'base.html' %}
-{% block title %}Категории турнира{% endblock %}
+{% block title %}Категории: {{ tournament.name }}{% endblock %}
 
 {% block content %}
-<h1>Категории турнира: {{ tournament.name }}</h1>
-
-{% for category in categories %}
-<div class="card mb-3">
-    <div class="card-body">
-        <h5>{{ category.name }} ({{ category.weight_class }})</h5>
-        <ul>
-            {% for athlete in category.athletes.all %}
-            <li>{{ athlete.first_name }} {{ athlete.last_name }} — {{ athlete.team }}</li>
-            {% empty %}
-            <li>Нет зарегистрированных спортсменов</li>
-            {% endfor %}
-        </ul>
-    </div>
+<!-- Заголовок -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2 text-blue-400">
+        Категории турнира: {{ tournament.name }}
+    </h1>
+    <p class="text-gray-400">{{ tournament.date|date:"d.m.Y" }} • {{ tournament.location }}</p>
 </div>
-{% endfor %}
+
+<!-- Категории -->
+{% if categories_data %}
+<div class="space-y-6">
+    {% for item in categories_data %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <!-- Заголовок категории -->
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h2 class="text-2xl font-semibold text-blue-300 mb-2">
+                    {{ item.category.name }}
+                </h2>
+                <div class="flex gap-4 text-sm text-gray-400">
+                    <span>👥 {{ item.category.get_gender_display }}</span>
+                    <span>📅 {{ item.category.age_min }}-{{ item.category.age_max }} лет</span>
+                    <span>⚖️ {{ item.category.weight_min }}-{{ item.category.weight_max }} кг</span>
+                    <span>🎯 {{ item.category.get_level_display }}</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-3xl font-bold text-green-400">{{ item.count }}</p>
+                <p class="text-sm text-gray-400">Участников</p>
+            </div>
+        </div>
+        
+        <!-- Список участников -->
+        {% if item.athletes %}
+        <div class="bg-gray-900 rounded-lg p-4">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {% for athlete in item.athletes %}
+                <div class="bg-gray-800 rounded p-3 flex justify-between items-center hover:bg-gray-750 transition">
+                    <div>
+                        <p class="font-semibold text-white">
+                            {{ forloop.counter }}. {{ athlete.full_name }}
+                        </p>
+                        <p class="text-sm text-gray-400">
+                            {{ athlete.school }} • {{ athlete.weight }} кг
+                        </p>
+                    </div>
+                    <a href="{% url 'athlete:profile' athlete.id %}" 
+                       class="text-blue-400 hover:text-blue-300 text-sm">
+                        →
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-4 bg-gray-900 rounded">
+            Участников пока нет
+        </p>
+        {% endif %}
+        
+        <!-- Действия -->
+        <div class="mt-4 flex gap-3">
+            <a href="{% url 'athlete:category_list' item.category.id %}" 
+               class="text-blue-400 hover:text-blue-300 text-sm font-semibold">
+                Подробнее →
+            </a>
+            {% if item.category.grid %}
+            <a href="{% url 'grid:view' item.category.id %}" 
+               class="text-purple-400 hover:text-purple-300 text-sm font-semibold">
+                Турнирная сетка →
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-gray-800 rounded-lg p-12 text-center border border-gray-700">
+    <p class="text-gray-500 text-lg">Категории ещё не добавлены</p>
+</div>
+{% endif %}
+
+<!-- Кнопка назад -->
+<div class="mt-6">
+    <a href="{% url 'tournament:detail' tournament.id %}" 
+       class="inline-block bg-gray-700 hover:bg-gray-600 text-white py-2 px-6 rounded transition">
+        ← Назад к турниру
+    </a>
+</div>
 {% endblock %}

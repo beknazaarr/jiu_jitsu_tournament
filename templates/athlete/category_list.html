@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Участники категории{% endblock %}
+
+{% block content %}
+<!-- Хлебные крошки -->
+<nav class="mb-6 text-sm text-gray-400">
+    <a href="{% url 'tournament:list' %}" class="hover:text-blue-400">Турниры</a>
+    <span class="mx-2">→</span>
+    <a href="{% url 'tournament:detail' tournament.id %}" class="hover:text-blue-400">{{ tournament.name }}</a>
+    <span class="mx-2">→</span>
+    <span class="text-blue-400">{{ category.name }}</span>
+</nav>
+
+<!-- Информация о категории -->
+<div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+    <h1 class="text-3xl font-bold mb-4 text-blue-400">{{ category.name }}</h1>
+    <div class="grid md:grid-cols-4 gap-4 text-sm">
+        <div>
+            <p class="text-gray-400">Пол</p>
+            <p class="text-white font-semibold">{{ category.get_gender_display }}</p>
+        </div>
+        <div>
+            <p class="text-gray-400">Возраст</p>
+            <p class="text-white font-semibold">{{ category.age_min }}-{{ category.age_max }} лет</p>
+        </div>
+        <div>
+            <p class="text-gray-400">Вес</p>
+            <p class="text-white font-semibold">{{ category.weight_min }}-{{ category.weight_max }} кг</p>
+        </div>
+        <div>
+            <p class="text-gray-400">Уровень</p>
+            <p class="text-white font-semibold">{{ category.get_level_display }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Список участников -->
+<div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+    <h2 class="text-xl font-semibold mb-4 text-blue-300">
+        👥 Зарегистрированные участники ({{ athletes.count }})
+    </h2>
+    
+    {% if athletes %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="border-b border-gray-700">
+                <tr class="text-gray-400 text-sm">
+                    <th class="pb-3 pr-4">#</th>
+                    <th class="pb-3 pr-4">ФИО</th>
+                    <th class="pb-3 pr-4">Возраст</th>
+                    <th class="pb-3 pr-4">Вес (кг)</th>
+                    <th class="pb-3 pr-4">Школа/Зал</th>
+                    <th class="pb-3">Действия</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-300">
+                {% for athlete in athletes %}
+                <tr class="border-b border-gray-700 hover:bg-gray-750 transition">
+                    <td class="py-3 pr-4">{{ forloop.counter }}</td>
+                    <td class="py-3 pr-4 font-semibold">{{ athlete.full_name }}</td>
+                    <td class="py-3 pr-4">{{ athlete.age }}</td>
+                    <td class="py-3 pr-4">{{ athlete.weight }}</td>
+                    <td class="py-3 pr-4">{{ athlete.school }}</td>
+                    <td class="py-3">
+                        <a href="{% url 'athlete:profile' athlete.id %}" 
+                           class="text-blue-400 hover:text-blue-300 text-sm">
+                            Профиль →
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-8">Участников пока нет</p>
+    {% endif %}
+</div>
+
+<!-- Кнопка назад -->
+<div class="mt-6">
+    <a href="{% url 'tournament:detail' tournament.id %}" 
+       class="inline-block bg-gray-700 hover:bg-gray-600 text-white py-2 px-6 rounded transition">
+        ← Назад к турниру
+    </a>
+</div>
+{% endblock %}

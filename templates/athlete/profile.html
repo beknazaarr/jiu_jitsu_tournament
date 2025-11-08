@@ -1,12 +1,201 @@
 {% extends 'base.html' %}
-{% block title %}Профиль спортсмена{% endblock %}
+{% block title %}Профиль: {{ athlete.full_name }}{% endblock %}
 
 {% block content %}
-<h1>Профиль спортсмена</h1>
-<ul class="list-group">
-    <li class="list-group-item"><strong>Имя:</strong> {{ athlete.first_name }} {{ athlete.last_name }}</li>
-    <li class="list-group-item"><strong>Команда:</strong> {{ athlete.team }}</li>
-    <li class="list-group-item"><strong>Возраст:</strong> {{ athlete.age }}</li>
-    <li class="list-group-item"><strong>Весовая категория:</strong> {{ athlete.weight_class }}</li>
-</ul>
+<!-- Заголовок -->
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-2 text-blue-400">{{ athlete.full_name }}</h1>
+    <p class="text-gray-400">Турнир: {{ athlete.tournament.name }}</p>
+</div>
+
+<div class="grid lg:grid-cols-3 gap-6 mb-8">
+    <!-- Личная информация -->
+    <div class="lg:col-span-1">
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h2 class="text-xl font-semibold mb-4 text-blue-300">👤 Личная информация</h2>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <p class="text-gray-400">Имя</p>
+                    <p class="text-white font-semibold">{{ athlete.first_name }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400">Фамилия</p>
+                    <p class="text-white font-semibold">{{ athlete.last_name }}</p>
+                </div>
+                {% if athlete.middle_name %}
+                <div>
+                    <p class="text-gray-400">Отчество</p>
+                    <p class="text-white font-semibold">{{ athlete.middle_name }}</p>
+                </div>
+                {% endif %}
+                <div>
+                    <p class="text-gray-400">Возраст</p>
+                    <p class="text-white font-semibold">{{ athlete.age }} лет</p>
+                </div>
+                <div>
+                    <p class="text-gray-400">Год рождения</p>
+                    <p class="text-white font-semibold">{{ athlete.birth_year }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400">Пол</p>
+                    <p class="text-white font-semibold">{{ athlete.get_gender_display }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Спортивная информация и статистика -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Спортивные данные -->
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h2 class="text-xl font-semibold mb-4 text-blue-300">🥋 Спортивные данные</h2>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-400">Категория</p>
+                    <p class="text-white font-semibold">{{ athlete.category.name }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400">Вес</p>
+                    <p class="text-white font-semibold">{{ athlete.weight }} кг</p>
+                </div>
+                <div>
+                    <p class="text-gray-400">Школа/Зал</p>
+                    <p class="text-white font-semibold">{{ athlete.school }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h2 class="text-xl font-semibold mb-4 text-blue-300">📊 Статистика</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-gray-700 rounded p-4 text-center">
+                    <p class="text-3xl font-bold text-green-400">{{ wins }}</p>
+                    <p class="text-gray-400 text-sm mt-1">Побед</p>
+                </div>
+                <div class="bg-gray-700 rounded p-4 text-center">
+                    <p class="text-3xl font-bold text-red-400">{{ losses }}</p>
+                    <p class="text-gray-400 text-sm mt-1">Поражений</p>
+                </div>
+                <div class="bg-gray-700 rounded p-4 text-center">
+                    <p class="text-3xl font-bold text-blue-400">{{ total_matches }}</p>
+                    <p class="text-gray-400 text-sm mt-1">Всего боёв</p>
+                </div>
+                <div class="bg-gray-700 rounded p-4 text-center">
+                    <p class="text-3xl font-bold text-yellow-400">{{ win_rate|floatformat:0 }}%</p>
+                    <p class="text-gray-400 text-sm mt-1">Винрейт</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Предстоящие бои -->
+{% if upcoming_matches %}
+<div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+    <h2 class="text-xl font-semibold mb-4 text-blue-300">⏰ Предстоящие бои</h2>
+    <div class="space-y-3">
+        {% for match in upcoming_matches %}
+        <div class="bg-gray-700 rounded p-4 border border-gray-600">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="font-semibold text-white">
+                        {{ match.athlete1.full_name }} 
+                        <span class="text-gray-400">vs</span> 
+                        {% if match.athlete2 %}
+                            {{ match.athlete2.full_name }}
+                        {% else %}
+                            <span class="text-gray-500">TBD</span>
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-400 mt-1">
+                        {{ match.get_round_display }} • Бой #{{ match.match_number }}
+                    </p>
+                </div>
+                {% if match.schedule %}
+                <div class="text-right">
+                    <p class="text-blue-400 font-semibold">Мат {{ match.schedule.mat_number }}</p>
+                    <p class="text-sm text-gray-400">{{ match.schedule.scheduled_time|date:"H:i" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- История боёв -->
+<div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+    <h2 class="text-xl font-semibold mb-4 text-blue-300">🎯 История боёв</h2>
+    
+    {% if matches %}
+    <div class="space-y-3">
+        {% for match in matches %}
+        <div class="bg-gray-700 rounded p-4 border border-gray-600 {% if not match.is_completed %}opacity-50{% endif %}">
+            <div class="flex justify-between items-start">
+                <div class="flex-1">
+                    <p class="font-semibold text-white mb-1">
+                        {{ match.athlete1.full_name }} 
+                        <span class="text-gray-400">vs</span> 
+                        {% if match.athlete2 %}
+                            {{ match.athlete2.full_name }}
+                        {% else %}
+                            <span class="text-gray-500">TBD</span>
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-400">
+                        {{ match.get_round_display }} • Бой #{{ match.match_number }}
+                    </p>
+                    
+                    {% if match.is_completed %}
+                    <div class="mt-2 text-sm">
+                        <span class="text-gray-400">Счёт:</span>
+                        <span class="text-white font-semibold ml-2">
+                            {{ match.score_athlete1 }} : {{ match.score_athlete2 }}
+                        </span>
+                        {% if match.result_type %}
+                        <span class="text-gray-400 ml-3">Победа: {{ match.get_result_type_display }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="text-right">
+                    {% if match.is_completed %}
+                        {% if match.winner == athlete %}
+                        <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                            ✓ Победа
+                        </span>
+                        {% elif match.winner %}
+                        <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                            ✗ Поражение
+                        </span>
+                        {% else %}
+                        <span class="bg-gray-500 text-white text-xs px-3 py-1 rounded-full">
+                            Ничья
+                        </span>
+                        {% endif %}
+                    {% else %}
+                    <span class="bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
+                        Ожидается
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-8">История боёв пуста</p>
+    {% endif %}
+</div>
+
+<!-- Кнопка назад -->
+<div class="mt-6">
+    <a href="{% url 'tournament:detail' athlete.tournament.id %}" 
+       class="inline-block bg-gray-700 hover:bg-gray-600 text-white py-2 px-6 rounded transition">
+        ← Назад к турниру
+    </a>
+</div>
 {% endblock %}

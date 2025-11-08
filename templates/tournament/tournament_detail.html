@@ -2,11 +2,93 @@
 {% block title %}{{ tournament.name }}{% endblock %}
 
 {% block content %}
-<h1>{{ tournament.name }}</h1>
-<p><strong>Дата:</strong> {{ tournament.date|date:"d.m.Y" }}</p>
-<p><strong>Место:</strong> {{ tournament.location }}</p>
-<p><strong>Описание:</strong> {{ tournament.description }}</p>
+<!-- Заголовок -->
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-2 text-blue-400">{{ tournament.name }}</h1>
+    {% if tournament.registration_open %}
+    <span class="inline-block bg-green-500 text-white text-sm px-3 py-1 rounded-full">
+        ✅ Регистрация открыта
+    </span>
+    {% else %}
+    <span class="inline-block bg-gray-600 text-gray-300 text-sm px-3 py-1 rounded-full">
+        ❌ Регистрация закрыта
+    </span>
+    {% endif %}
+</div>
 
-<a href="{% url 'tournament:categories' tournament.id %}" class="btn btn-primary">Посмотреть категории</a>
-<a href="{% url 'tournament:schedule' tournament.id %}" class="btn btn-secondary">Расписание</a>
+<!-- Основная информация -->
+<div class="grid md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4 text-blue-300">📋 Основная информация</h2>
+        <div class="space-y-3 text-gray-300">
+            <p><strong class="text-gray-400">Дата:</strong> {{ tournament.date|date:"d E Y" }}</p>
+            <p><strong class="text-gray-400">Место:</strong> {{ tournament.location }}</p>
+            <p><strong class="text-gray-400">Участников:</strong> {{ total_athletes }}</p>
+            <p><strong class="text-gray-400">Категорий:</strong> {{ categories.count }}</p>
+        </div>
+    </div>
+    
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4 text-blue-300">📝 Описание</h2>
+        {% if tournament.description %}
+        <p class="text-gray-300">{{ tournament.description }}</p>
+        {% else %}
+        <p class="text-gray-500 italic">Описание отсутствует</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Правила -->
+{% if tournament.rules %}
+<div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+    <h2 class="text-xl font-semibold mb-4 text-blue-300">⚖️ Правила турнира</h2>
+    <div class="text-gray-300 whitespace-pre-line">{{ tournament.rules }}</div>
+</div>
+{% endif %}
+
+<!-- Категории -->
+<div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+    <h2 class="text-xl font-semibold mb-4 text-blue-300">🎯 Категории турнира</h2>
+    
+    {% if categories %}
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for category in categories %}
+        <div class="bg-gray-700 rounded p-4 border border-gray-600">
+            <h3 class="font-semibold text-blue-200 mb-2">{{ category.name }}</h3>
+            <div class="text-sm text-gray-300 space-y-1">
+                <p>Пол: {{ category.get_gender_display }}</p>
+                <p>Возраст: {{ category.age_min }}-{{ category.age_max }} лет</p>
+                <p>Вес: {{ category.weight_min }}-{{ category.weight_max }} кг</p>
+                <p>Уровень: {{ category.get_level_display }}</p>
+                <p class="text-green-400 font-semibold mt-2">
+                    Участников: {{ category.athletes.count }}
+                </p>
+            </div>
+            <a href="{% url 'athlete:category_list' category.id %}" 
+               class="block mt-3 text-center bg-blue-600 hover:bg-blue-500 text-white py-1 px-3 rounded text-sm transition">
+                Список участников
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500">Категории ещё не добавлены</p>
+    {% endif %}
+</div>
+
+<!-- Действия -->
+<div class="flex gap-4">
+    <a href="{% url 'tournament:categories' tournament.id %}" 
+       class="bg-blue-600 hover:bg-blue-500 text-white py-3 px-6 rounded-lg transition font-semibold">
+        📊 Все категории и участники
+    </a>
+    <a href="{% url 'tournament:schedule' tournament.id %}" 
+       class="bg-purple-600 hover:bg-purple-500 text-white py-3 px-6 rounded-lg transition font-semibold">
+        🕐 Расписание боёв
+    </a>
+    <a href="{% url 'tournament:list' %}" 
+       class="bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg transition">
+        ← Назад к списку
+    </a>
+</div>
 {% endblock %}

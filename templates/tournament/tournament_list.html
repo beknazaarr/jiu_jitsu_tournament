@@ -2,20 +2,53 @@
 {% block title %}Список турниров{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-bold mb-6 text-blue-400">Список турниров</h2>
+<div class="mb-8">
+    <h2 class="text-3xl font-bold mb-2 text-blue-400">🏆 Турниры по джиу-джитсу</h2>
+    <p class="text-gray-400">Выберите турнир для просмотра подробной информации</p>
+</div>
 
+{% if tournaments %}
 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for tournament in tournaments %}
-    <div class="bg-gray-800 rounded-lg shadow-lg p-5 hover:shadow-blue-400/40 transition">
-        <h3 class="text-xl font-semibold text-blue-300 mb-2">{{ tournament.name }}</h3>
-        <p class="text-gray-400 mb-1">Дата: {{ tournament.date }}</p>
-        <p class="text-gray-400 mb-3">Место: {{ tournament.location }}</p>
-        <a href="{% url 'tournament:detail' tournament.pk %}" class="text-blue-400 hover:text-blue-200">
-            Подробнее →
-        </a>
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-blue-400/40 transition border border-gray-700">
+        <div class="flex items-start justify-between mb-3">
+            <h3 class="text-xl font-semibold text-blue-300">{{ tournament.name }}</h3>
+            {% if tournament.registration_open %}
+            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">Регистрация</span>
+            {% endif %}
+        </div>
+        
+        <div class="space-y-2 mb-4 text-sm">
+            <p class="text-gray-400">
+                📅 <strong>Дата:</strong> {{ tournament.date|date:"d.m.Y" }}
+            </p>
+            <p class="text-gray-400">
+                📍 <strong>Место:</strong> {{ tournament.location }}
+            </p>
+            {% if tournament.description %}
+            <p class="text-gray-400 line-clamp-2">
+                {{ tournament.description|truncatewords:20 }}
+            </p>
+            {% endif %}
+        </div>
+        
+        <div class="flex gap-2">
+            <a href="{% url 'tournament:detail' tournament.pk %}" 
+               class="flex-1 text-center bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded transition">
+                Подробнее
+            </a>
+            <a href="{% url 'tournament:categories' tournament.pk %}" 
+               class="flex-1 text-center bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded transition">
+                Категории
+            </a>
+        </div>
     </div>
-    {% empty %}
-    <p>Пока нет турниров.</p>
     {% endfor %}
 </div>
+{% else %}
+<div class="bg-gray-800 rounded-lg p-8 text-center border border-gray-700">
+    <p class="text-gray-400 text-lg">Пока нет активных турниров</p>
+    <p class="text-gray-500 mt-2">Следите за обновлениями</p>
+</div>
+{% endif %}
 {% endblock %}
