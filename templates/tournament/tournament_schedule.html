@@ -2,130 +2,167 @@
 {% block title %}Расписание: {{ tournament.name }}{% endblock %}
 
 {% block content %}
-<!-- Заголовок -->
-<div class="mb-8">
-    <h1 class="text-3xl font-bold mb-2 text-blue-400">
-        🕐 Расписание турнира: {{ tournament.name }}
-    </h1>
-    <p class="text-gray-400">{{ tournament.date|date:"d E Y" }} • {{ tournament.location }}</p>
+<!-- Хлебные крошки -->
+<div class="bg-gray-900 border-b border-gray-800">
+    <div class="container mx-auto px-4 py-4">
+        <nav class="flex items-center gap-2 text-sm">
+            <a href="{% url 'tournament:list' %}" class="text-gray-400 hover:text-white">Турниры</a>
+            <span class="text-gray-600">/</span>
+            <a href="{% url 'tournament:detail' tournament.id %}" class="text-gray-400 hover:text-white">
+                {{ tournament.name }}
+            </a>
+            <span class="text-gray-600">/</span>
+            <span class="text-white">Расписание</span>
+        </nav>
+    </div>
 </div>
 
-<!-- Расписание по матам -->
-{% if mats %}
-<div class="space-y-6">
-    {% for mat_number, schedules in mats.items %}
-    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <h2 class="text-2xl font-semibold text-blue-300 mb-4">
-            Мат {{ mat_number }}
-        </h2>
-        
-        <div class="space-y-3">
-            {% for schedule in schedules %}
-            <div class="bg-gray-700 rounded-lg p-4 border border-gray-600 hover:border-blue-500 transition">
-                <div class="flex justify-between items-start">
+<!-- Заголовок -->
+<div class="bg-gradient-to-r from-blue-900 to-blue-700">
+    <div class="container mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-white mb-4">🕐 Расписание турнира</h1>
+        <p class="text-blue-200 text-lg">{{ tournament.name }} • {{ tournament.date|date:"d B Y" }}</p>
+    </div>
+</div>
+
+<!-- Контент -->
+<div class="container mx-auto px-4 py-8">
+    
+    {% if mats %}
+    <!-- Сетка матов -->
+    <div class="grid lg:grid-cols-3 gap-6 mb-8">
+        {% for mat_number, schedules in mats.items %}
+        <div class="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+            
+            <!-- Заголовок мата -->
+            <div class="bg-gradient-to-r from-blue-900 to-blue-700 p-4 text-center">
+                <h2 class="text-2xl font-bold text-white">МАТ {{ mat_number }}</h2>
+                <p class="text-blue-200 text-sm mt-1">{{ schedules|length }} боёв</p>
+            </div>
+            
+            <!-- Список боёв на мате -->
+            <div class="p-4 space-y-3 max-h-[600px] overflow-y-auto">
+                {% for schedule in schedules %}
+                <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-blue-500 transition">
+                    
+                    <!-- Время и статус -->
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded">
+                            {{ schedule.scheduled_time|date:"H:i" }}
+                        </span>
+                        <div>
+                            {% if schedule.is_finished %}
+                            <span class="bg-gray-600 text-white text-xs px-2 py-1 rounded-full">
+                                ✓ Завершён
+                            </span>
+                            {% elif schedule.is_started %}
+                            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
+                                ▶ Идёт
+                            </span>
+                            {% else %}
+                            <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                                ⏳ Ожидается
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
                     <!-- Информация о бое -->
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
-                                {{ schedule.scheduled_time|date:"H:i" }}
-                            </span>
-                            <span class="text-gray-400 text-sm">
-                                Бой #{{ schedule.match.match_number }}
-                            </span>
-                            <span class="text-gray-500 text-sm">
-                                {{ schedule.match.get_round_display }}
-                            </span>
-                        </div>
-                        
-                        <div class="mb-2">
-                            <p class="text-sm text-gray-400 mb-1">
-                                {{ schedule.match.grid.category.name }}
-                            </p>
-                            <p class="text-white font-semibold">
-                                {{ schedule.match.athlete1.full_name }}
-                                <span class="text-gray-400 mx-2">vs</span>
-                                {% if schedule.match.athlete2 %}
-                                    {{ schedule.match.athlete2.full_name }}
-                                {% else %}
-                                    <span class="text-gray-500">Определяется</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                        
-                        <p class="text-xs text-gray-500">
-                            Длительность: {{ schedule.duration_minutes }} мин
+                    <div class="mb-2">
+                        <p class="text-xs text-gray-500 mb-1">
+                            Бой #{{ schedule.match.match_number }} • {{ schedule.match.get_round_display }}
+                        </p>
+                        <p class="text-xs text-gray-400 mb-2">
+                            {{ schedule.match.grid.category.name }}
                         </p>
                     </div>
                     
-                    <!-- Статус -->
-                    <div class="ml-4">
-                        {% if schedule.is_finished %}
-                        <span class="bg-gray-600 text-white text-xs px-3 py-1 rounded-full">
-                            ✓ Завершён
-                        </span>
-                        {% elif schedule.is_started %}
-                        <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full animate-pulse">
-                            ▶ Идёт
-                        </span>
-                        {% else %}
-                        <span class="bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
-                            ⏳ Ожидается
-                        </span>
+                    <!-- Участники -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between bg-gray-700 rounded p-2">
+                            <span class="text-white text-sm font-medium truncate">
+                                {{ schedule.match.athlete1.last_name }}
+                            </span>
+                            {% if schedule.match.is_completed %}
+                            <span class="text-lg font-bold {% if schedule.match.winner == schedule.match.athlete1 %}text-green-400{% else %}text-gray-500{% endif %}">
+                                {{ schedule.match.score_athlete1 }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-center text-xs text-gray-600">vs</div>
+                        
+                        <div class="flex items-center justify-between bg-gray-700 rounded p-2">
+                            <span class="text-white text-sm font-medium truncate">
+                                {% if schedule.match.athlete2 %}
+                                    {{ schedule.match.athlete2.last_name }}
+                                {% else %}
+                                    <span class="italic text-gray-500">TBD</span>
+                                {% endif %}
+                            </span>
+                            {% if schedule.match.is_completed %}
+                            <span class="text-lg font-bold {% if schedule.match.winner == schedule.match.athlete2 %}text-green-400{% else %}text-gray-500{% endif %}">
+                                {{ schedule.match.score_athlete2 }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Результат -->
+                    {% if schedule.match.is_completed %}
+                    <div class="mt-3 pt-3 border-t border-gray-700">
+                        <p class="text-xs text-green-400 font-medium">
+                            Победитель: {{ schedule.match.winner.last_name }}
+                        </p>
+                        {% if schedule.match.result_type %}
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ schedule.match.get_result_type_display }}
+                        </p>
                         {% endif %}
                     </div>
+                    {% endif %}
+                    
                 </div>
-                
-                <!-- Результат (если бой завершён) -->
-                {% if schedule.match.is_completed %}
-                <div class="mt-3 pt-3 border-t border-gray-600">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-400">Результат:</span>
-                        <span class="text-white font-semibold">
-                            {{ schedule.match.score_athlete1 }} : {{ schedule.match.score_athlete2 }}
-                        </span>
-                        <span class="text-green-400 font-semibold">
-                            Победитель: {{ schedule.match.winner.last_name }}
-                        </span>
-                    </div>
-                </div>
-                {% endif %}
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Легенда -->
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Обозначения статусов</h3>
+        <div class="flex flex-wrap gap-6 text-sm">
+            <div class="flex items-center gap-2">
+                <span class="bg-blue-500 text-white text-xs px-3 py-1 rounded-full">⏳ Ожидается</span>
+                <span class="text-gray-400">Бой ещё не начался</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">▶ Идёт</span>
+                <span class="text-gray-400">Бой идёт сейчас</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="bg-gray-600 text-white text-xs px-3 py-1 rounded-full">✓ Завершён</span>
+                <span class="text-gray-400">Бой завершён</span>
+            </div>
         </div>
     </div>
-    {% endfor %}
-</div>
-{% else %}
-<div class="bg-gray-800 rounded-lg p-12 text-center border border-gray-700">
-    <p class="text-gray-500 text-lg mb-2">Расписание пока не составлено</p>
-    <p class="text-gray-600 text-sm">Следите за обновлениями на сайте</p>
-</div>
-{% endif %}
-
-<!-- Легенда -->
-<div class="mt-8 bg-gray-800 rounded-lg p-6 border border-gray-700">
-    <h3 class="text-lg font-semibold text-blue-300 mb-3">Обозначения</h3>
-    <div class="flex gap-6 text-sm">
-        <div class="flex items-center gap-2">
-            <span class="bg-blue-500 text-white text-xs px-3 py-1 rounded-full">⏳ Ожидается</span>
-            <span class="text-gray-400">Бой ещё не начался</span>
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">▶ Идёт</span>
-            <span class="text-gray-400">Бой идёт сейчас</span>
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="bg-gray-600 text-white text-xs px-3 py-1 rounded-full">✓ Завершён</span>
-            <span class="text-gray-400">Бой завершён</span>
-        </div>
+    
+    {% else %}
+    <!-- Пустое состояние -->
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-16 text-center">
+        <div class="text-6xl mb-4 opacity-50">🕐</div>
+        <h3 class="text-2xl font-bold text-white mb-2">Расписание пока не составлено</h3>
+        <p class="text-gray-400">Расписание появится ближе к дате турнира</p>
     </div>
-</div>
-
-<!-- Кнопка назад -->
-<div class="mt-6">
-    <a href="{% url 'tournament:detail' tournament.id %}" 
-       class="inline-block bg-gray-700 hover:bg-gray-600 text-white py-2 px-6 rounded transition">
-        ← Назад к турниру
-    </a>
+    {% endif %}
+    
+    <!-- Кнопка назад -->
+    <div class="mt-8">
+        <a href="{% url 'tournament:detail' tournament.id %}" 
+           class="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition">
+            ← Назад к турниру
+        </a>
+    </div>
 </div>
 {% endblock %}

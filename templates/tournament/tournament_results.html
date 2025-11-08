@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block title %}Результаты: {{ tournament.name }}{% endblock %}
+
+{% block content %}
+<!-- Хлебные крошки -->
+<div class="bg-gray-900 border-b border-gray-800">
+    <div class="container mx-auto px-4 py-4">
+        <nav class="flex items-center gap-2 text-sm">
+            <a href="{% url 'tournament:list' %}" class="text-gray-400 hover:text-white">Турниры</a>
+            <span class="text-gray-600">/</span>
+            <a href="{% url 'tournament:detail' tournament.id %}" class="text-gray-400 hover:text-white">
+                {{ tournament.name }}
+            </a>
+            <span class="text-gray-600">/</span>
+            <span class="text-white">Результаты</span>
+        </nav>
+    </div>
+</div>
+
+<!-- Заголовок -->
+<div class="bg-gradient-to-r from-yellow-900 to-yellow-700">
+    <div class="container mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-white mb-4">🏅 Результаты турнира</h1>
+        <p class="text-yellow-200 text-lg">{{ tournament.name }} • {{ tournament.date|date:"d B Y" }}</p>
+    </div>
+</div>
+
+<!-- Контент -->
+<div class="container mx-auto px-4 py-8">
+    
+    {% if categories_results %}
+    <div class="space-y-8">
+        {% for category_result in categories_results %}
+        <div class="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+            
+            <!-- Заголовок категории -->
+            <div class="bg-gray-800 border-b border-gray-700 p-6">
+                <h2 class="text-2xl font-bold text-white mb-2">{{ category_result.category.name }}</h2>
+                <div class="flex gap-4 text-sm text-gray-400">
+                    <span>{{ category_result.category.get_gender_display }}</span>
+                    <span>{{ category_result.category.age_min }}-{{ category_result.category.age_max }} лет</span>
+                    <span>{{ category_result.category.weight_min }}-{{ category_result.category.weight_max }} кг</span>
+                </div>
+            </div>
+            
+            <!-- Подиум -->
+            {% if category_result.podium %}
+            <div class="p-8 bg-gradient-to-b from-gray-800 to-gray-900">
+                <div class="flex justify-center items-end gap-4 max-w-3xl mx-auto">
+                    
+                    <!-- 2 место -->
+                    {% if category_result.podium.second %}
+                    <div class="flex-1 text-center">
+                        <div class="bg-gray-700 border-2 border-gray-400 rounded-lg p-6 mb-3">
+                            <div class="text-5xl mb-3">🥈</div>
+                            <p class="text-xl font-bold text-white mb-1">{{ category_result.podium.second.full_name }}</p>
+                            <p class="text-sm text-gray-400">{{ category_result.podium.second.school }}</p>
+                        </div>
+                        <div class="bg-gray-400 text-white font-bold py-2 px-4 rounded">
+                            2 место
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 1 место -->
+                    {% if category_result.podium.first %}
+                    <div class="flex-1 text-center">
+                        <div class="bg-gradient-to-b from-yellow-600 to-yellow-700 border-2 border-yellow-400 rounded-lg p-8 mb-3 transform scale-110">
+                            <div class="text-6xl mb-3">🥇</div>
+                            <p class="text-2xl font-bold text-white mb-1">{{ category_result.podium.first.full_name }}</p>
+                            <p class="text-sm text-yellow-200">{{ category_result.podium.first.school }}</p>
+                        </div>
+                        <div class="bg-yellow-500 text-white font-bold py-3 px-6 rounded">
+                            ПОБЕДИТЕЛЬ
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 3 место -->
+                    {% if category_result.podium.third %}
+                    <div class="flex-1 text-center">
+                        <div class="bg-gray-700 border-2 border-orange-700 rounded-lg p-6 mb-3">
+                            <div class="text-5xl mb-3">🥉</div>
+                            <p class="text-xl font-bold text-white mb-1">{{ category_result.podium.third.full_name }}</p>
+                            <p class="text-sm text-gray-400">{{ category_result.podium.third.school }}</p>
+                        </div>
+                        <div class="bg-orange-700 text-white font-bold py-2 px-4 rounded">
+                            3 место
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Таблица результатов -->
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-white mb-4">Все участники</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-800">
+                            <tr class="text-left text-xs text-gray-400 uppercase">
+                                <th class="px-4 py-3">Место</th>
+                                <th class="px-4 py-3">Спортсмен</th>
+                                <th class="px-4 py-3">Школа</th>
+                                <th class="px-4 py-3 text-center">Побед</th>
+                                <th class="px-4 py-3 text-center">Поражений</th>
+                                <th class="px-4 py-3 text-center">Боёв</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800">
+                            {% for result in category_result.results %}
+                            <tr class="hover:bg-gray-800/50 transition">
+                                <td class="px-4 py-3">
+                                    {% if forloop.counter == 1 %}
+                                    <span class="text-yellow-400 font-bold text-lg">🥇</span>
+                                    {% elif forloop.counter == 2 %}
+                                    <span class="text-gray-400 font-bold text-lg">🥈</span>
+                                    {% elif forloop.counter == 3 %}
+                                    <span class="text-orange-700 font-bold text-lg">🥉</span>
+                                    {% else %}
+                                    <span class="text-gray-500">{{ forloop.counter }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <a href="{% url 'athlete:profile' result.athlete.id %}" 
+                                       class="text-white hover:text-blue-400 font-medium">
+                                        {{ result.athlete.full_name }}
+                                    </a>
+                                </td>
+                                <td class="px-4 py-3 text-gray-300">
+                                    {{ result.athlete.school }}
+                                </td>
+                                <td class="px-4 py-3 text-center text-green-400 font-semibold">
+                                    {{ result.wins }}
+                                </td>
+                                <td class="px-4 py-3 text-center text-red-400">
+                                    {{ result.losses }}
+                                </td>
+                                <td class="px-4 py-3 text-center text-gray-300">
+                                    {{ result.total }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% else %}
+    <!-- Пустое состояние -->
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-16 text-center">
+        <div class="text-6xl mb-4 opacity-50">🏅</div>
+        <h3 class="text-2xl font-bold text-white mb-2">Результаты пока недоступны</h3>
+        <p class="text-gray-400 mb-6">Результаты появятся после завершения всех поединков</p>
+        <div class="flex gap-4 justify-center">
+            <a href="{% url 'tournament:schedule' tournament.id %}" 
+               class="inline-block bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg transition">
+                Посмотреть расписание
+            </a>
+            <a href="{% url 'tournament:categories' tournament.id %}" 
+               class="inline-block bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition">
+                Список участников
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Кнопка назад -->
+    <div class="mt-8">
+        <a href="{% url 'tournament:detail' tournament.id %}" 
+           class="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition">
+            ← Назад к турниру
+        </a>
+    </div>
+</div>
+{% endblock %}

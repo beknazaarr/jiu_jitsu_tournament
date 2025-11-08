@@ -56,17 +56,12 @@
             </div>
             
             <!-- Действия -->
-            <div class="flex gap-3">
-                <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm transition">
-                    Экспорт
-                </button>
-                {% if category.grid %}
-                <a href="{% url 'grid:view' category.id %}" 
-                   class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm transition">
-                    Турнирная сетка
-                </a>
-                {% endif %}
-            </div>
+            {% if category.grid %}
+            <a href="{% url 'grid:view' category.id %}" 
+               class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm transition">
+                Турнирная сетка
+            </a>
+            {% endif %}
         </div>
 
         <!-- Таблица участников -->
