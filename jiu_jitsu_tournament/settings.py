@@ -55,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = "jiu_jitsu_tournament.urls"
@@ -120,7 +121,18 @@ TIME_ZONE = "Asia/Bishkek"
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
+
+# Формат даты для русского языка
+DATE_FORMAT = 'd E Y'
+DATETIME_FORMAT = 'd E Y H:i'
+SHORT_DATE_FORMAT = 'd.m.Y'
+SHORT_DATETIME_FORMAT = 'd.m.Y H:i'
+
+# Формат даты по умолчанию
+DATE_INPUT_FORMATS = ['%d.%m.%Y', '%Y-%m-%d']
 
 
 # Static files (CSS, JavaScript, Images)
@@ -134,4 +146,3 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-

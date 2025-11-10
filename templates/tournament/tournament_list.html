@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Турниры{% endblock %}
 
 {% block content %}
@@ -50,7 +51,7 @@
                 <!-- Дата -->
                 <div class="flex items-center gap-2 text-gray-400 mb-2 text-sm">
                     <span>📅</span>
-                    <span>{{ tournament.date|date:"d B Y" }}</span>
+                    <span>{{ tournament.date|date:"d.m.Y" }}</span>
                 </div>
                 
                 <!-- Место -->
